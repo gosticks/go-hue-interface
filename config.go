@@ -9,8 +9,10 @@ import (
 
 // Config hue api config
 type Config struct {
-	Username string `yaml:name`
-	Password string `yaml:userpassword`
+	Username         string `yaml:name`
+	Password         string `yaml:userpassword`
+	BridgeAddr       string `yaml:bridgeAddress`
+	BridgeAddrScheme string `yaml:bridgeAddressScheme`
 }
 
 // createNewUser will create a new user. This should be called only of there's none in the yaml config.
