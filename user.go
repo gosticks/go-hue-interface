@@ -14,13 +14,11 @@ type User struct {
 }
 
 // CreateNewUser will create a new user. This should be called only of there's none in the yaml config.
-func CreateUser(addr string) (name, key string, succ bool) {
-	return "", "", false
+func CreateUser(addr string) (u *User, err error) {
+	return CreateUserExtended(addr, "go-hue-interface", "Philips hue")
 }
 
 // TODO: remove these comments
-// example application: "go.hue.interface"
-// example deviceName: "Philips hue"
 func CreateUserExtended(addr, application, deviceName string) (u *User, err error) {
 	uri := "http://" + addr + "/api"
 
