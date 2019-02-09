@@ -6,6 +6,8 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+
+	"io/ioutil"
 )
 
 // -------------------------------------------------------------
@@ -61,6 +63,9 @@ func (b *Bridge) postToBridge(endpoint string, payload interface{}) (interface{}
 }
 
 func (b *Bridge) putToBridge(endpoint string, payload interface{}, respData interface{}) error {
+	// TODO: remove
+	fmt.Println("load:", payload)
+	
 	data, errMarhshal := json.Marshal(payload)
 	if errMarhshal != nil {
 		return errMarhshal
@@ -78,14 +83,22 @@ func (b *Bridge) putToBridge(endpoint string, payload interface{}, respData inte
 		return err
 	}
 
+	// TODO: remove
+	fmt.Println("response Status:", res.Status)
+    fmt.Println("response Headers:", res.Header)
+    body, _ := ioutil.ReadAll(res.Body)
+    fmt.Println("response Body:", string(body))
+
 	if res.StatusCode != http.StatusOK {
 		return errors.New("Hue responded with error" + res.Status + fmt.Sprint(res.StatusCode))
 	}
 
 	// Unmarshal data
-	errDecode := json.NewDecoder(res.Body).Decode(respData)
-	if errDecode != nil {
-		return errDecode
+	if respData != nil {
+		errDecode := json.NewDecoder(res.Body).Decode(respData)
+		if errDecode != nil {
+			return errDecode
+		}
 	}
 
 	return nil
@@ -111,9 +124,11 @@ func (b *Bridge) getFromBridge(endpoint string, target interface{}) error {
 	}
 
 	// Unmarshal data
-	errDecode := json.NewDecoder(res.Body).Decode(target)
-	if errDecode != nil {
-		return errDecode
+	if target != nil {
+		errDecode := json.NewDecoder(res.Body).Decode(target)
+		if errDecode != nil {
+			return errDecode
+		}
 	}
 
 	return nil
