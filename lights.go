@@ -1,5 +1,7 @@
 package main
 
+import "fmt"
+
 // Light hue object
 type Light struct {
 	State     *LightState `json:"state"`
@@ -20,4 +22,20 @@ type LightState struct {
 	Effect    string `json:"effect"`
 	ColorMode string `json:"colormode"`
 	Reachable bool   `json:"reachable"`
+}
+
+type cmdResponse struct {
+}
+
+const LightsEndpoint = "/lights"
+
+func (l *Light) String() string {
+	return fmt.Sprintf("Name=\"%s\" Model=\"%s\" On=\"%x\" XY=\"%x\" \n", l.Name, l.ModelID, l.State.On, l.State.XY)
+}
+
+func (b *Bridge) ToggleLight(id string, on bool) error {
+	cmd := &LightState{
+		On: on,
+	}
+	return b.putToBridge(LightsEndpoint+"/"+id+"/state", cmd, nil)
 }

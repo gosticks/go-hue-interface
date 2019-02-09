@@ -1,11 +1,9 @@
 package main
 
 import (
-	"bytes"
-	"fmt"
-    "gopkg.in/yaml.v2"
 	"io/ioutil"
-	"net/http"
+
+	"gopkg.in/yaml.v2"
 )
 
 // Config hue api config
@@ -19,19 +17,19 @@ type Config struct {
 // TODO: Rename if this will be placed in a seperate package
 // ReadConfig ...
 func ReadConfig(path string) (conf *Config, err error) {
-    f, err := ioutil.ReadFile(path)
-    if err != nil {
-        return
+	f, err := ioutil.ReadFile(path)
+	if err != nil {
+		return
 	}
-	
-    err = yaml.Unmarshal(f, conf)
-    if err != nil {
+
+	err = yaml.Unmarshal(f, conf)
+	if err != nil {
 		return
 	}
 
 	// TODO: check wether a user is already created and if not create one.
 
-    return
+	return
 }
 
 func (c *Config) WriteConfig(path string) (err error) {

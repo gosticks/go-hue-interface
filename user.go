@@ -1,8 +1,8 @@
 package main
 
 import (
-	"encoding/json"
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"net/http"
 )
@@ -15,7 +15,7 @@ type User struct {
 
 // CreateNewUser will create a new user. This should be called only of there's none in the yaml config.
 func CreateUser(addr string) (name, key string, succ bool) {
-
+	return "", "", false
 }
 
 // TODO: remove these comments

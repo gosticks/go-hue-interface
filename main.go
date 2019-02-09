@@ -20,7 +20,7 @@ func main() {
 	fmt.Println("Created bridge ", bridge)
 
 	test := &BridgeState{}
-	errCom := bridge.getFromBridge("", test)
+	errCom := bridge.ToggleLight("2", true)
 	if errCom != nil {
 		fmt.Println("[ERROR]" + errCom.Error())
 	}
