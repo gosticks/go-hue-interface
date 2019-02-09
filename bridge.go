@@ -60,6 +60,37 @@ func (b *Bridge) postToBridge(endpoint string, payload interface{}) (interface{}
 	return res, nil
 }
 
+func (b *Bridge) putToBridge(endpoint string, payload interface{}, respData interface{}) error {
+	data, errMarhshal := json.Marshal(payload)
+	if errMarhshal != nil {
+		return errMarhshal
+	}
+	uri := b.getBridgeAPIURI() + endpoint
+	req, err := http.NewRequest(http.MethodPut, uri, bytes.NewBuffer(data))
+	if err != nil {
+		return err
+	}
+
+	req.Header.Set("Content-Type", "application/json")
+	client := &http.Client{}
+	res, err := client.Do(req)
+	if err != nil {
+		return err
+	}
+
+	if res.StatusCode != http.StatusOK {
+		return errors.New("Hue responded with error" + res.Status + fmt.Sprint(res.StatusCode))
+	}
+
+	// Unmarshal data
+	errDecode := json.NewDecoder(res.Body).Decode(respData)
+	if errDecode != nil {
+		return errDecode
+	}
+
+	return nil
+}
+
 func (b *Bridge) getFromBridge(endpoint string, target interface{}) error {
 
 	uri := b.getBridgeAPIURI() + endpoint
@@ -82,7 +113,7 @@ func (b *Bridge) getFromBridge(endpoint string, target interface{}) error {
 	// Unmarshal data
 	errDecode := json.NewDecoder(res.Body).Decode(target)
 	if errDecode != nil {
-		return err
+		return errDecode
 	}
 
 	return nil
