@@ -8,11 +8,16 @@ import (
 	"net/http"
 )
 
+// -------------------------------------------------------------
+// Interfaces
+// -------------------------------------------------------------
+
 // Bridge is the hue bridge interface
 type Bridge struct {
 	Config *Config
 }
 
+// BridgeUserConfig is the config provided for hue for a user
 type BridgeUserConfig struct {
 	Name             string `json:"name"`
 	APIVersion       string `json:"apiversion"`
@@ -23,6 +28,10 @@ type BridgeUserConfig struct {
 	StarterKitID     string `json:"starterkitid"`
 	ReplacesBridgeID string `json:"replacesbridgeid"`
 }
+
+// -------------------------------------------------------------
+// Methods
+// -------------------------------------------------------------
 
 // NewBridge creates a new bridge api instance
 func NewBridge(conf *Config) *Bridge {
