@@ -13,6 +13,17 @@ type Bridge struct {
 	Config *Config
 }
 
+type BridgeUserConfig struct {
+	Name             string `json:"name"`
+	APIVersion       string `json:"apiversion"`
+	IPAddress        string `json:"ipaddress"`
+	MAC              string `json:"mac"`
+	BridgeID         string `json:"bridgeid"`
+	DataStoreVersion string `json:"datastoreversion"`
+	StarterKitID     string `json:"starterkitid"`
+	ReplacesBridgeID string `json:"replacesbridgeid"`
+}
+
 // NewBridge creates a new bridge api instance
 func NewBridge(conf *Config) *Bridge {
 	return &Bridge{
@@ -56,7 +67,7 @@ func (b *Bridge) getFromBridge(endpoint string, target interface{}) error {
 	}
 
 	if res.StatusCode != http.StatusOK {
-		return errors.New("Mite responded with error" + res.Status + fmt.Sprint(res.StatusCode))
+		return errors.New("Hue responded with error" + res.Status + fmt.Sprint(res.StatusCode))
 	}
 
 	// Unmarshal data
