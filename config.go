@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"fmt"
+    "gopkg.in/yaml.v2"
 	"io/ioutil"
 	"net/http"
 )
@@ -15,26 +16,27 @@ type Config struct {
 	BridgeAddrScheme string `yaml:bridgeAddressScheme`
 }
 
-// createNewUser will create a new user. This should be called only of there's none in the yaml config.
-func (c *Config) createNewUser() {
-	// TODO: read/create the url
-	url := "http://192.168.178.46/api"
-
-	var reqBody = []byte(`{"devicetype": "go-hue-interface#Philips hue"}`)
-	req, err := http.NewRequest("POST", url, bytes.NewBuffer(reqBody))
-
-	client := &http.Client{}
-	resp, err := client.Do(req)
-	if err != nil {
-		panic(err)
+// TODO: Rename if this will be placed in a seperate package
+// ReadConfig ...
+func ReadConfig(path string) (conf *Config, err error) {
+    f, err := ioutil.ReadFile(path)
+    if err != nil {
+        return
 	}
-	defer resp.Body.Close()
+	
+    err = yaml.Unmarshal(f, conf)
+    if err != nil {
+		return
+	}
 
-	fmt.Println("response Status:", resp.Status)
-	fmt.Println("response Headers:", resp.Header)
-	body, _ := ioutil.ReadAll(resp.Body)
-	fmt.Println("response Body:", string(body))
+	// TODO: check wether a user is already created and if not create one.
 
-	// json.Unmarshal([]byte(str), &resp)
-	fmt.Println(resp)
+    return
+}
+
+func (c *Config) WriteConfig(path string) (err error) {
+	b, err := yaml.Marshal(c)
+
+	err = ioutil.WriteFile(path, b, 0644)
+	return
 }
