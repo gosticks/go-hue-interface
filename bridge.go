@@ -3,12 +3,21 @@ package main
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
+	"fmt"
 	"net/http"
 )
 
 // Bridge is the hue bridge interface
 type Bridge struct {
 	Config *Config
+}
+
+// NewBridge creates a new bridge api instance
+func NewBridge(conf *Config) *Bridge {
+	return &Bridge{
+		Config: conf,
+	}
 }
 
 func (b *Bridge) postToBridge(endpoint string, payload interface{}) (interface{}, error) {
@@ -29,6 +38,34 @@ func (b *Bridge) postToBridge(endpoint string, payload interface{}) (interface{}
 		return nil, err
 	}
 	return res, nil
+}
+
+func (b *Bridge) getFromBridge(endpoint string, target interface{}) error {
+
+	uri := b.getBridgeAPIURI() + endpoint
+
+	req, err := http.NewRequest("GET", uri, nil)
+	if err != nil {
+		return err
+	}
+
+	client := &http.Client{}
+	res, err := client.Do(req)
+	if err != nil {
+		return err
+	}
+
+	if res.StatusCode != http.StatusOK {
+		return errors.New("Mite responded with error" + res.Status + fmt.Sprint(res.StatusCode))
+	}
+
+	// Unmarshal data
+	errDecode := json.NewDecoder(res.Body).Decode(target)
+	if errDecode != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (b *Bridge) getBridgeAPIURI() string {
