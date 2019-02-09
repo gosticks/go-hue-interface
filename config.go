@@ -1,11 +1,8 @@
 package main
 
 import (
-	"bytes"
-	"fmt"
     "gopkg.in/yaml.v2"
 	"io/ioutil"
-	"net/http"
 )
 
 // Config hue api config
