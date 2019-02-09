@@ -19,8 +19,8 @@ func main() {
 
 	fmt.Println("Created bridge ", bridge)
 
-	test := &BridgeUserConfig{}
-	errCom := bridge.getFromBridge("/config", test)
+	test := &BridgeState{}
+	errCom := bridge.getFromBridge("", test)
 	if errCom != nil {
 		fmt.Println("[ERROR]" + errCom.Error())
 	}
