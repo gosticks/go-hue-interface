@@ -4,24 +4,24 @@ import "fmt"
 
 // Light hue object
 type Light struct {
-	State     *LightState `json:"state"`
-	Type      string      `json:"type"`
-	Name      string      `json:"name"`
-	ModelID   string      `json:"modelid"`
-	SwVersion string      `json:"swversion"`
+	State     *LightState `json:"state,omitempty"`
+	Type      string      `json:"type,omitempty"`
+	Name      string      `json:"name,omitempty"`
+	ModelID   string      `json:"modelid,omitempty"`
+	SwVersion string      `json:"swversion,omitempty"`
 }
 
 // LightState is the hue light>state object
 type LightState struct {
 	On        bool   `json:"on"`
-	BridgeID  int    `json:"bridgeid"`
-	Hue       int    `json:"hue"`
-	XY        []int  `json:"xy"`
-	Ct        int    `json:"ct"`
-	Alert     string `json:"alert"`
-	Effect    string `json:"effect"`
-	ColorMode string `json:"colormode"`
-	Reachable bool   `json:"reachable"`
+	BridgeID  int    `json:"bridgeid,omitempty"`
+	Hue       int    `json:"hue,omitempty"`
+	XY        []int  `json:"xy,omitempty"`
+	Ct        int    `json:"ct,omitempty"`
+	Alert     string `json:"alert,omitempty"`
+	Effect    string `json:"effect,omitempty"`
+	ColorMode string `json:"colormode,omitempty"`
+	Reachable bool   `json:"reachable,omitempty"`
 }
 
 type cmdResponse struct {
