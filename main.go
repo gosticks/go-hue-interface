@@ -2,9 +2,7 @@ package hue
 
 import (
 	"fmt"
-	"log"
 	"time"
-
 )
 
 const VERSION = "0.1.2"
@@ -26,12 +24,8 @@ func main() {
 	// if errCom != nil {
 	// 	fmt.Println("[ERROR]" + errCom.Error())
 	// }
-	//tickSwitch(bridge)
-	testLightBulb(bridge)
-	select {}
 	//fmt.Println(test)
 }
-
 
 func strobeLight(b *Bridge, id string) {
 	ticker := time.NewTicker(200 * time.Millisecond)
