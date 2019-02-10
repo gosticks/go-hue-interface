@@ -1,4 +1,4 @@
-package main
+package hue
 
 import (
 	"bytes"
@@ -29,6 +29,23 @@ type BridgeUserConfig struct {
 	DataStoreVersion string `json:"datastoreversion"`
 	StarterKitID     string `json:"starterkitid"`
 	ReplacesBridgeID string `json:"replacesbridgeid"`
+}
+
+// BridgeResponse is the response object returned to a bridge command
+type BridgeResponse struct {
+	Success map[string]interface{} `json:"success"`
+	Error   *BridgeResponseError   `json:"error"`
+}
+
+// BridgeResponseError provides info about a bridge api error
+type BridgeResponseError struct {
+	Type        uint   `json:"type"`
+	Address     string `json:"address"`
+	Description string `json:"description"`
+}
+
+func (err *BridgeResponseError) String() string {
+	return fmt.Sprintf("Type=\"%d\" Addr=\"%s\" Desc=\"%s\" \n", err.Type, err.Address, err.Description)
 }
 
 // -------------------------------------------------------------
@@ -65,7 +82,7 @@ func (b *Bridge) postToBridge(endpoint string, payload interface{}) (interface{}
 func (b *Bridge) putToBridge(endpoint string, payload interface{}, respData interface{}) error {
 	// TODO: remove
 	fmt.Println("load:", payload)
-	
+
 	data, errMarhshal := json.Marshal(payload)
 	if errMarhshal != nil {
 		return errMarhshal
@@ -85,9 +102,9 @@ func (b *Bridge) putToBridge(endpoint string, payload interface{}, respData inte
 
 	// TODO: remove
 	fmt.Println("response Status:", res.Status)
-    fmt.Println("response Headers:", res.Header)
-    body, _ := ioutil.ReadAll(res.Body)
-    fmt.Println("response Body:", string(body))
+	fmt.Println("response Headers:", res.Header)
+	body, _ := ioutil.ReadAll(res.Body)
+	fmt.Println("response Body:", string(body))
 
 	if res.StatusCode != http.StatusOK {
 		return errors.New("Hue responded with error" + res.Status + fmt.Sprint(res.StatusCode))

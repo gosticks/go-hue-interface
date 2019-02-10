@@ -1,9 +1,10 @@
-package main
+package hue
 
 // -------------------------------------------------------------
 // ~ Interfaces & Types
 // -------------------------------------------------------------
 
+// BridgeState provides all data for a bridge
 type BridgeState struct {
 	Lights map[string]*Light `json:"lights"`
 }

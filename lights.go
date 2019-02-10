@@ -1,4 +1,4 @@
-package main
+package hue
 
 import "fmt"
 
@@ -24,18 +24,23 @@ type LightState struct {
 	Reachable bool   `json:"reachable,omitempty"`
 }
 
-type cmdResponse struct {
-}
-
+// LightsEndpoint for the lights
 const LightsEndpoint = "/lights"
 
 func (l *Light) String() string {
-	return fmt.Sprintf("Name=\"%s\" Model=\"%s\" On=\"%x\" XY=\"%x\" \n", l.Name, l.ModelID, l.State.On, l.State.XY)
+	return fmt.Sprintf("Name=\"%s\" Model=\"%s\" On=\"%v\" XY=\"%x\" \n", l.Name, l.ModelID, l.State.On, l.State.XY)
 }
 
-func (b *Bridge) ToggleLight(id string, on bool) error {
-	cmd := &LightState{
+// ToggleLight switches light on or off
+func (b *Bridge) ToggleLight(id string, on bool) (resp *BridgeResponse, err error) {
+	state := &LightState{
 		On: on,
 	}
-	return b.putToBridge(LightsEndpoint+"/"+id+"/state", cmd, nil)
+	return b.SetLightState(id, state)
+}
+
+// SetLightState updates the light state
+func (b *Bridge) SetLightState(id string, state *LightState) (resp *BridgeResponse, err error) {
+	err = b.putToBridge(LightsEndpoint+"/"+id+"/state", state, resp)
+	return resp, err
 }
