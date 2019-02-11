@@ -16,8 +16,7 @@ import (
 
 // Bridge is the hue bridge interface
 type Bridge struct {
-	Config        *Config
-	lightMonitors map[string]*Monitor
+	Config *Config
 }
 
 // BridgeUserConfig is the config provided for hue for a user

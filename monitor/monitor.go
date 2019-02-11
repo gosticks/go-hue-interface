@@ -1,6 +1,8 @@
-package hue
+package monitor
 
-import "reflect"
+import (
+	"reflect"
+)
 
 // Monitor is a interface which is used for checking events
 type Monitor struct {
@@ -18,6 +20,6 @@ func (m *Monitor) Update(newState interface{}) {
 	}
 }
 
-func (b *Bridge) AddMonitor() {
+// func (b *hue.Bridge) AddMonitor() {
 
-}
+// }

@@ -7,7 +7,7 @@ import (
 // SwUpdate provides the current sw state and last install
 type SwUpdate struct {
 	State       string `json:"state,omitempty"`
-	LastInstall string `json:"lastinstall,omitempty"`
+	LastInstall Time   `json:"lastinstall,omitempty"`
 }
 
 // LightCapabilities type providing control and certification settings
@@ -18,6 +18,7 @@ type LightCapabilities struct {
 // Light hue object
 type Light struct {
 	State            *LightState `json:"state,omitempty"`
+	SwUpdate         *SwUpdate   `json:"swupdate,omitempty"`
 	Type             string      `json:"type,omitempty"`
 	Name             string      `json:"name,omitempty"`
 	ModelID          string      `json:"modelid,omitempty"`
@@ -25,7 +26,6 @@ type Light struct {
 	Productname      string      `json:"productname,omitempty"`
 	SwVersion        string      `json:"swversion,omitempty"`
 	UniqueID         string      `json:"uniqueID,omitempty"`
-	SwUpdate         *SwUpdate   `json:"swupdate,omitempty"`
 	// "capabilities": {
 	// 	"certified": true,
 	// 	"control": {
@@ -66,15 +66,16 @@ type Light struct {
 // LightState is the hue light>state object
 type LightState struct {
 	On             bool      `json:"on"`
-	BridgeID       int       `json:"bridgeid,omitempty"`
+	BridgeID       int       `json:"bri,omitempty"`
 	Hue            uint16    `json:"hue,omitempty"`
 	Sat            uint8     `json:"sat,omitempty"`
+	Effect         string    `json:"effect,omitempty"`
 	XY             []float32 `json:"xy,omitempty"`
 	Ct             uint16    `json:"ct,omitempty"`
 	Alert          string    `json:"alert,omitempty"`
-	Effect         string    `json:"effect,omitempty"`
 	TransitionTime uint16    `json:"transitiontime,omitempty"`
 	ColorMode      string    `json:"colormode,omitempty"`
+	Mode           string    `json:"mode,omitempty"`
 	Reachable      bool      `json:"reachable,omitempty"`
 }
 
