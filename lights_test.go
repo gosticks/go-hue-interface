@@ -1,36 +1,51 @@
 package hue
 
 import (
-	"bytes"
-	"encoding/json"
 	"fmt"
+	"os"
 	"testing"
+
+	"github.com/gosticks/go-hue-interface/utils"
 )
 
 func TestParseLights(t *testing.T) {
-
-	target := make(map[string]*Light)
-	buffer := new(bytes.Buffer)
-	// Remove all spaces
-	json.Compact(buffer, []byte(LightsTestData))
-	bytes := buffer.Bytes()
-	// Unmarshal the data
-	json.Unmarshal(bytes, &target)
-
-	// Marshal it again
-	outputData, _ := json.Marshal(target)
-
-	old := string(bytes)
-	new := string(outputData)
-
-	if old != new {
-		fmt.Println("String do not match!")
-		fmt.Println("OLD: \n " + old)
-		fmt.Println("----------------------------- ")
-		fmt.Println("NEW: \n " + new)
+	v := make(map[string]*Light)
+	err := utils.CompareJSONDecode(LightsTestData, &v)
+	if err != nil {
 		t.Fail()
 	}
-	t.Log("Completed")
+}
+
+func TestBridgeLightsParse(t *testing.T) {
+	userID, okUser := os.LookupEnv("HUE_BRIDGE_USER")
+	addr, okAddr := os.LookupEnv("HUE_BRIDGE_ADDR")
+	if !okAddr || !okUser {
+		fmt.Println("HUE_BRIDGE_USER and HUE_BRIDGE_ADDR must be set in env for this test to work")
+		t.Fail()
+	}
+
+	conf := &Config{
+		Username:         userID,
+		BridgeAddr:       addr,
+		BridgeAddrScheme: "http",
+	}
+	b := NewBridge(conf)
+	resp, respErr := b.getRawResponse(LightsEndpoint)
+	if respErr != nil {
+		t.Log(respErr)
+		t.Error()
+	}
+
+	lights, errLights := b.GetLights()
+	if errLights != nil {
+		t.Log(errLights)
+		t.Error()
+	}
+
+	errComp := utils.CompareStructToJSON(lights, string(resp))
+	if errComp != nil {
+		t.Fail()
+	}
 }
 
 const LightsTestData = `{
