@@ -65,15 +65,17 @@ type Light struct {
 
 // LightState is the hue light>state object
 type LightState struct {
-	On        bool   `json:"on"`
-	BridgeID  int    `json:"bridgeid,omitempty"`
-	Hue       int    `json:"hue,omitempty"`
-	XY        []int  `json:"xy,omitempty"`
-	Ct        int    `json:"ct,omitempty"`
-	Alert     string `json:"alert,omitempty"`
-	Effect    string `json:"effect,omitempty"`
-	ColorMode string `json:"colormode,omitempty"`
-	Reachable bool   `json:"reachable,omitempty"`
+	On             bool      `json:"on"`
+	BridgeID       int       `json:"bridgeid,omitempty"`
+	Hue            uint16    `json:"hue,omitempty"`
+	Sat            uint8     `json:"sat,omitempty"`
+	XY             []float32 `json:"xy,omitempty"`
+	Ct             uint16    `json:"ct,omitempty"`
+	Alert          string    `json:"alert,omitempty"`
+	Effect         string    `json:"effect,omitempty"`
+	TransitionTime uint16    `json:"transitiontime,omitempty"`
+	ColorMode      string    `json:"colormode,omitempty"`
+	Reachable      bool      `json:"reachable,omitempty"`
 }
 
 // LightsEndpoint for the lights
