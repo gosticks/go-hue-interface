@@ -17,3 +17,10 @@ func (bs *BridgeState) String() string {
 
 	return str
 }
+
+// GetState returns the current hue state
+func (b *Bridge) GetState() (*BridgeState, error) {
+	state := &BridgeState{}
+	err := b.getFromBridge("", state)
+	return state, err
+}
