@@ -1,14 +1,66 @@
 package hue
 
-import "fmt"
+import (
+	"fmt"
+)
+
+// SwUpdate provides the current sw state and last install
+type SwUpdate struct {
+	State       string `json:"state,omitempty"`
+	LastInstall string `json:"lastinstall,omitempty"`
+}
+
+// LightCapabilities type providing control and certification settings
+type LightCapabilities struct {
+	Certified bool `json:"certified"`
+}
 
 // Light hue object
 type Light struct {
-	State     *LightState `json:"state,omitempty"`
-	Type      string      `json:"type,omitempty"`
-	Name      string      `json:"name,omitempty"`
-	ModelID   string      `json:"modelid,omitempty"`
-	SwVersion string      `json:"swversion,omitempty"`
+	State            *LightState `json:"state,omitempty"`
+	Type             string      `json:"type,omitempty"`
+	Name             string      `json:"name,omitempty"`
+	ModelID          string      `json:"modelid,omitempty"`
+	ManufacturerName string      `json:"manufacturername,omitempty"`
+	Productname      string      `json:"productname,omitempty"`
+	SwVersion        string      `json:"swversion,omitempty"`
+	UniqueID         string      `json:"uniqueID,omitempty"`
+	SwUpdate         *SwUpdate   `json:"swupdate,omitempty"`
+	// "capabilities": {
+	// 	"certified": true,
+	// 	"control": {
+	// 		"mindimlevel": 5000,
+	// 		"maxlumen": 600,
+	// 		"colorgamuttype": "B",
+	// 		"colorgamut": [
+	// 			[
+	// 				0.675,
+	// 				0.322
+	// 			],
+	// 			[
+	// 				0.409,
+	// 				0.518
+	// 			],
+	// 			[
+	// 				0.167,
+	// 				0.04
+	// 			]
+	// 		],
+	// 		"ct": {
+	// 			"min": 153,
+	// 			"max": 500
+	// 		}
+	// 	},
+	// 	"streaming": {
+	// 		"renderer": true,
+	// 		"proxy": false
+	// 	}
+	// },
+	// "config": {
+	// 	"archetype": "sultanbulb",
+	// 	"function": "mixed",
+	// 	"direction": "omnidirectional"
+	// },
 }
 
 // LightState is the hue light>state object
@@ -28,7 +80,7 @@ type LightState struct {
 const LightsEndpoint = "/lights"
 
 func (l *Light) String() string {
-	return fmt.Sprintf("Name=\"%s\" Model=\"%s\" On=\"%v\" XY=\"%x\" \n", l.Name, l.ModelID, l.State.On, l.State.XY)
+	return fmt.Sprintf("Name=\"%s\" ModelID=\"%s\" ProductName=\"%s\" On=\"%v\" Manu=\"%s\" \n", l.Name, l.ModelID, l.Productname, l.State.On, l.ManufacturerName)
 }
 
 // ToggleLight switches light on or off
@@ -43,4 +95,11 @@ func (b *Bridge) ToggleLight(id string, on bool) (resp *BridgeResponse, err erro
 func (b *Bridge) SetLightState(id string, state *LightState) (resp *BridgeResponse, err error) {
 	err = b.putToBridge(LightsEndpoint+"/"+id+"/state", state, resp)
 	return resp, err
+}
+
+// GetLights returns all the hue lights
+func (b *Bridge) GetLights() (map[string]*Light, error) {
+	result := make(map[string]*Light)
+	err := b.getFromBridge("/lights", &result)
+	return result, err
 }
