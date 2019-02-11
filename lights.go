@@ -12,55 +12,56 @@ type SwUpdate struct {
 
 // LightCapabilities type providing control and certification settings
 type LightCapabilities struct {
-	Certified bool `json:"certified"`
+	Certified bool                   `json:"certified"`
+	Control   *LightControl          `json:"control"`
+	Streaming *StreamingCapabilities `json:"streaming"`
+}
+
+type StreamingCapabilities struct {
+	Renderer bool `json:"renderer"`
+	Proxy    bool `json:"proxy"`
+}
+
+type DeviceConfig struct {
+	ArcheType string         `json:"archetype"`
+	Function  string         `json:"function"`
+	Direction string         `json:"direction"`
+	Startup   *DeviceStartUp `json:"startup,omitempty"`
+}
+
+type DeviceStartUp struct {
+	Mode       string `json:"mode"`
+	Configured bool   `json:"configured"`
+}
+
+type LightControl struct {
+	MinDimLevel    uint16      `json:"mindimlevel,omitempty"`
+	MaxLumen       uint        `json:"maxlumen,omitempty"`
+	ColorGamutType string      `json:"colorgamuttype,omitempty"`
+	ColorGamut     [][]float32 `json:"colorgamut,omitempty"`
+	Ct             *LightCt    `json:"ct,omitempty"`
+}
+
+type LightCt struct {
+	Min uint `json:"min"`
+	Max uint `json:"max"`
 }
 
 // Light hue object
 type Light struct {
-	State            *LightState `json:"state,omitempty"`
-	SwUpdate         *SwUpdate   `json:"swupdate,omitempty"`
-	Type             string      `json:"type,omitempty"`
-	Name             string      `json:"name,omitempty"`
-	ModelID          string      `json:"modelid,omitempty"`
-	ManufacturerName string      `json:"manufacturername,omitempty"`
-	Productname      string      `json:"productname,omitempty"`
-	SwVersion        string      `json:"swversion,omitempty"`
-	UniqueID         string      `json:"uniqueID,omitempty"`
-	// "capabilities": {
-	// 	"certified": true,
-	// 	"control": {
-	// 		"mindimlevel": 5000,
-	// 		"maxlumen": 600,
-	// 		"colorgamuttype": "B",
-	// 		"colorgamut": [
-	// 			[
-	// 				0.675,
-	// 				0.322
-	// 			],
-	// 			[
-	// 				0.409,
-	// 				0.518
-	// 			],
-	// 			[
-	// 				0.167,
-	// 				0.04
-	// 			]
-	// 		],
-	// 		"ct": {
-	// 			"min": 153,
-	// 			"max": 500
-	// 		}
-	// 	},
-	// 	"streaming": {
-	// 		"renderer": true,
-	// 		"proxy": false
-	// 	}
-	// },
-	// "config": {
-	// 	"archetype": "sultanbulb",
-	// 	"function": "mixed",
-	// 	"direction": "omnidirectional"
-	// },
+	State            *LightState        `json:"state,omitempty"`
+	SwUpdate         *SwUpdate          `json:"swupdate,omitempty"`
+	Type             string             `json:"type,omitempty"`
+	Name             string             `json:"name,omitempty"`
+	ModelID          string             `json:"modelid,omitempty"`
+	ManufacturerName string             `json:"manufacturername,omitempty"`
+	Productname      string             `json:"productname,omitempty"`
+	Capabilities     *LightCapabilities `json:"capabilities,omitempty"`
+	Config           *DeviceConfig      `json:"config"`
+	UniqueID         string             `json:"uniqueid,omitempty"`
+	SwVersion        string             `json:"swversion,omitempty"`
+	SwConfigID       string             `json:"swconfigid,omitempty"`
+	ProductID        string             `json:"productid,omitempty"`
 }
 
 // LightState is the hue light>state object
@@ -76,7 +77,7 @@ type LightState struct {
 	TransitionTime uint16    `json:"transitiontime,omitempty"`
 	ColorMode      string    `json:"colormode,omitempty"`
 	Mode           string    `json:"mode,omitempty"`
-	Reachable      bool      `json:"reachable,omitempty"`
+	Reachable      bool      `json:"reachable"`
 }
 
 // LightsEndpoint for the lights
