@@ -121,6 +121,35 @@ func (b *Bridge) putToBridge(endpoint string, payload interface{}, respData inte
 	return nil
 }
 
+func (b *Bridge) getRawResponse(endpoint string) ([]byte, error) {
+
+	uri := b.getBridgeAPIURI() + endpoint
+
+	req, err := http.NewRequest("GET", uri, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	client := &http.Client{}
+	res, err := client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+
+	defer res.Body.Close()
+
+	if res.StatusCode != http.StatusOK {
+		return nil, errors.New("Hue responded with error" + res.Status + fmt.Sprint(res.StatusCode))
+
+	}
+
+	respBytes, errRead := ioutil.ReadAll(res.Body)
+	if errRead != nil {
+		return nil, errRead
+	}
+	return respBytes, nil
+}
+
 func (b *Bridge) getFromBridge(endpoint string, target interface{}) error {
 
 	uri := b.getBridgeAPIURI() + endpoint
@@ -135,6 +164,8 @@ func (b *Bridge) getFromBridge(endpoint string, target interface{}) error {
 	if err != nil {
 		return err
 	}
+
+	defer res.Body.Close()
 
 	if res.StatusCode != http.StatusOK {
 		return errors.New("Hue responded with error" + res.Status + fmt.Sprint(res.StatusCode))
