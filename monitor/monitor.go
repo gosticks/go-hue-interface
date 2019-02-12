@@ -2,19 +2,9 @@ package monitor
 
 import (
 	"fmt"
-	"reflect"
 	"time"
 
 	"github.com/gosticks/go-hue-interface"
-)
-
-type ListenerType int
-
-const (
-	Light  ListenerType = 0
-	Scene  ListenerType = 1
-	Sensor ListenerType = 2
-	Group  ListenerType = 3
 )
 
 // Monitor is a interface which is used for checking events
@@ -25,6 +15,7 @@ type Monitor struct {
 	ticker    *time.Ticker
 }
 
+// NewMonitor creates a new monitor. The monitor can be used to observe changes to specific lamps, scenes, groups..
 func NewMonitor(b *hue.Bridge, interval time.Duration) *Monitor {
 	return &Monitor{
 		Listeners: make(map[ListenerType]map[string]*Listener),
@@ -33,6 +24,7 @@ func NewMonitor(b *hue.Bridge, interval time.Duration) *Monitor {
 	}
 }
 
+// Tick starts a update process by iterating over all the listeners for each type. Tick normally should be called by the provided Start method but can also be use manually.
 func (m *Monitor) Tick() error {
 	st, errState := m.Bridge.GetState()
 	if errState != nil {
@@ -53,10 +45,11 @@ func (m *Monitor) Tick() error {
 	return nil
 }
 
+// Start begins a monitoring loop with the interval set on the monitor
 func (m *Monitor) Start() {
 	m.ticker = time.NewTicker(m.Interval)
 	go func() {
-		for _ = range m.ticker.C {
+		for range m.ticker.C {
 			// fmt.Println("Tick: ", t)
 			//Call the periodic function here.
 			errTick := m.Tick()
@@ -67,6 +60,7 @@ func (m *Monitor) Start() {
 	}()
 }
 
+// AddListener adds a new listener to the listener map. The listener will only be called if the id and type match and the state has changed. If a listener for a id and type already exists it will be removed
 func (m *Monitor) AddListener(id string, t ListenerType, handler func(interface{})) {
 	if m.Listeners[t] == nil {
 		m.Listeners[t] = make(map[string]*Listener)
@@ -74,23 +68,4 @@ func (m *Monitor) AddListener(id string, t ListenerType, handler func(interface{
 	m.Listeners[t][id] = &Listener{Handler: handler}
 }
 
-type Listener struct {
-	CurrentState interface{}
-	Handler      func(interface{})
-}
-
-func (l *Listener) hasChanged(newState interface{}) bool {
-	return !reflect.DeepEqual(l.CurrentState, newState)
-}
-
-func (l *Listener) Update(newState interface{}) {
-	oldState := l.CurrentState
-	l.CurrentState = newState
-	if oldState != nil {
-		l.Handler(newState)
-	}
-}
-
-// func (b *hue.Bridge) AddMonitor() {
-
-// }
+// TODO: add RemoveListener and Stop
