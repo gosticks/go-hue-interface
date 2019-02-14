@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"testing"
+	"time"
 
 	"github.com/gosticks/go-hue-interface/utils"
 )
@@ -16,6 +17,33 @@ func TestParseLights(t *testing.T) {
 	}
 }
 
+func TestLightToggle(t *testing.T) {
+	userID, okUser := os.LookupEnv("HUE_BRIDGE_USER")
+	addr, okAddr := os.LookupEnv("HUE_BRIDGE_ADDR")
+	if !okAddr || !okUser {
+		fmt.Println("HUE_BRIDGE_USER and HUE_BRIDGE_ADDR must be set in env for this test to work")
+		t.Fail()
+	}
+
+	conf := &Config{
+		Username:         userID,
+		BridgeAddr:       addr,
+		BridgeAddrScheme: "http",
+	}
+	b := NewBridge(conf)
+
+	ticker := time.NewTicker(200 * time.Millisecond)
+	defer ticker.Stop()
+	go func() {
+		var state = true
+		for range ticker.C {
+			b.ToggleLight("2", state)
+			state = !state
+		}
+	}()
+
+	select {}
+}
 func TestBridgeLightsParse(t *testing.T) {
 	userID, okUser := os.LookupEnv("HUE_BRIDGE_USER")
 	addr, okAddr := os.LookupEnv("HUE_BRIDGE_ADDR")
