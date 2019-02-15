@@ -1,6 +1,9 @@
 package hue
 
-import "fmt"
+import (
+	"encoding/json"
+	"fmt"
+)
 
 const groupsEndpoint = "/groups"
 
@@ -48,11 +51,14 @@ const (
 
 // Group hue type
 type Group struct {
-	Name     string     `json:"name"`
-	LightIDs []string   `json:"Lights"`
-	Type     string     `json:"type"`
-	Action   LightState `json:"action"`
-	Class    string     `json:"class,omitempty"`
+	Name      string      `json:"name"`
+	LightIDs  []string    `json:"lights"`
+	SensorIDs []string    `json:"sensors"`
+	Type      string      `json:"type"`
+	State     *GroupState `json:"state"`
+	Recycle   bool        `json:"recycle"`
+	Class     string      `json:"class,omitempty"`
+	Action    LightState  `json:"action"`
 }
 
 // GroupCreateResponse is returned after a create group request
@@ -60,6 +66,11 @@ type GroupCreateResponse struct {
 	Success struct {
 		ID string `json:"id"`
 	} `json:"success"`
+}
+
+type GroupState struct {
+	AllOn bool `json:"all_on"`
+	AnyOn bool `json:"any_on"`
 }
 
 // -------------------------------------------------------------
@@ -95,7 +106,7 @@ func (r RoomClasses) String() string {
 }
 
 // -------------------------------------------------------------
-// ~ Private methods
+// ~ Public methods
 // -------------------------------------------------------------
 
 // CreateGroup creates a new hue group. For rooms please use the CreateRoom call since it also needs a class
@@ -113,6 +124,17 @@ func (b *Bridge) CreateGroup(name string, groupType GroupType, lights []string) 
 	return b.createGroup(groupConfig)
 }
 
+// GetAllGroups returns all the groups for a hue bridge
+func (b *Bridge) GetAllGroups() (map[string]*Group, error) {
+	result := make(map[string]*Group)
+	errCom := b.getAndDecode(groupsEndpoint, &result)
+	if errCom != nil {
+		return nil, errCom
+	}
+
+	return result, nil
+}
+
 // CreateRoom creates a new hue room.
 func (b *Bridge) CreateRoom(name string, class RoomClasses, lights []string) (string, error) {
 	groupConfig := &Group{
@@ -124,6 +146,8 @@ func (b *Bridge) CreateRoom(name string, class RoomClasses, lights []string) (st
 	return b.createGroup(groupConfig)
 }
 
+// func (b *Bridge) SetGroupAttributes(id string)
+
 // -------------------------------------------------------------
 // ~ Private methods
 // -------------------------------------------------------------
@@ -134,9 +158,16 @@ func (b *Bridge) createGroup(group *Group) (string, error) {
 		return "", errCreate
 	}
 
-	newGroups, ok := res.([]*GroupCreateResponse)
-	if ok && len(newGroups) == 1 {
-		return newGroups[0].Success.ID, nil
+	result := []*GroupCreateResponse{}
+
+	// Unmarshal data
+	errDecode := json.NewDecoder(res.Body).Decode(result)
+	if errDecode != nil {
+		return "", errDecode
+	}
+
+	if len(result) == 1 {
+		return result[0].Success.ID, nil
 	} else {
 		return "", fmt.Errorf("could not create group, bridge did not return new group id")
 	}
