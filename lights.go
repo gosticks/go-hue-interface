@@ -1,6 +1,7 @@
 package hue
 
 import (
+	"encoding/json"
 	"fmt"
 )
 
@@ -77,7 +78,7 @@ type LightState struct {
 	TransitionTime uint16    `json:"transitiontime,omitempty"`
 	ColorMode      string    `json:"colormode,omitempty"`
 	Mode           string    `json:"mode,omitempty"`
-	Reachable      bool      `json:"reachable"`
+	Reachable      bool      `json:"reachable,omitempty"`
 }
 
 // LightsEndpoint for the lights
@@ -96,14 +97,29 @@ func (b *Bridge) ToggleLight(id string, on bool) (resp *BridgeResponse, err erro
 }
 
 // SetLightState updates the light state
-func (b *Bridge) SetLightState(id string, state *LightState) (resp *BridgeResponse, err error) {
-	err = b.putToBridge(LightsEndpoint+"/"+id+"/state", state, resp)
-	return resp, err
+func (b *Bridge) SetLightState(id string, state *LightState) (result *BridgeResponse, err error) {
+	res, err := b.putToBridge(LightsEndpoint+"/"+id+"/state", state)
+
+	// Unmarshal data
+	errDecode := json.NewDecoder(res.Body).Decode(result)
+	if errDecode != nil {
+		return nil, errDecode
+	}
+
+	return result, err
 }
 
 // GetLights returns all the hue lights
-func (b *Bridge) GetLights() (map[string]*Light, error) {
-	result := make(map[string]*Light)
-	err := b.getFromBridge("/lights", &result)
+func (b *Bridge) GetLights() (result map[string]*Light, err error) {
+	res, errCom := b.getFromBridge("/lights")
+	if errCom != nil {
+		return nil, errCom
+	}
+	// Unmarshal data
+	errDecode := json.NewDecoder(res.Body).Decode(result)
+	if errDecode != nil {
+		return nil, errDecode
+	}
+
 	return result, err
 }

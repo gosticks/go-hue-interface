@@ -1,5 +1,7 @@
 package hue
 
+import "encoding/json"
+
 // -------------------------------------------------------------
 // ~ Interfaces & Types
 // -------------------------------------------------------------
@@ -21,6 +23,13 @@ func (bs *BridgeState) String() string {
 // GetState returns the current hue state
 func (b *Bridge) GetState() (*BridgeState, error) {
 	state := &BridgeState{}
-	err := b.getFromBridge("", state)
+	res, err := b.getFromBridge("")
+
+	// Unmarshal data
+	errDecode := json.NewDecoder(res.Body).Decode(state)
+	if errDecode != nil {
+		return nil, errDecode
+	}
+
 	return state, err
 }
