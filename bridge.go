@@ -59,13 +59,21 @@ func NewBridge(conf *Config) *Bridge {
 	}
 }
 
-func (b *Bridge) postToBridge(endpoint string, payload interface{}) (interface{}, error) {
+func (b *Bridge) postToBridge(endpoint string, payload interface{}) (*http.Response, error) {
+	return b.sendToBridge(endpoint, http.MethodPost, payload)
+}
+
+func (b *Bridge) putToBridge(endpoint string, payload interface{}) (*http.Response, error) {
+	return b.sendToBridge(endpoint, http.MethodPost, payload)
+}
+
+func (b *Bridge) sendToBridge(endpoint string, method string, payload interface{}) (*http.Response, error) {
 	data, errMarhshal := json.Marshal(payload)
 	if errMarhshal != nil {
 		return nil, errMarhshal
 	}
 	uri := b.getBridgeAPIURI() + endpoint
-	req, err := http.NewRequest(http.MethodPost, uri, bytes.NewBuffer(data))
+	req, err := http.NewRequest(method, uri, bytes.NewBuffer(data))
 	if err != nil {
 		return nil, err
 	}
@@ -79,69 +87,12 @@ func (b *Bridge) postToBridge(endpoint string, payload interface{}) (interface{}
 	return res, nil
 }
 
-func (b *Bridge) putToBridge(endpoint string, payload interface{}, respData interface{}) error {
-	// TODO: remove
-	fmt.Println("load:", payload)
-
-	data, errMarhshal := json.Marshal(payload)
-	if errMarhshal != nil {
-		return errMarhshal
-	}
-	uri := b.getBridgeAPIURI() + endpoint
-	req, err := http.NewRequest(http.MethodPut, uri, bytes.NewBuffer(data))
-	if err != nil {
-		return err
-	}
-
-	req.Header.Set("Content-Type", "application/json")
-	client := &http.Client{}
-	res, err := client.Do(req)
-	if err != nil {
-		return err
-	}
-
-	// TODO: remove
-	fmt.Println("response Status:", res.Status)
-	fmt.Println("response Headers:", res.Header)
-	body, _ := ioutil.ReadAll(res.Body)
-	fmt.Println("response Body:", string(body))
-
-	if res.StatusCode != http.StatusOK {
-		return errors.New("Hue responded with error" + res.Status + fmt.Sprint(res.StatusCode))
-	}
-
-	// Unmarshal data
-	if respData != nil {
-		errDecode := json.NewDecoder(res.Body).Decode(respData)
-		if errDecode != nil {
-			return errDecode
-		}
-	}
-
-	return nil
-}
-
 func (b *Bridge) getRawResponse(endpoint string) ([]byte, error) {
-
-	uri := b.getBridgeAPIURI() + endpoint
-
-	req, err := http.NewRequest("GET", uri, nil)
-	if err != nil {
-		return nil, err
+	res, errCom := b.getFromBridge(endpoint)
+	if errCom != nil {
+		return nil, errCom
 	}
-
-	client := &http.Client{}
-	res, err := client.Do(req)
-	if err != nil {
-		return nil, err
-	}
-
 	defer res.Body.Close()
-
-	if res.StatusCode != http.StatusOK {
-		return nil, errors.New("Hue responded with error" + res.Status + fmt.Sprint(res.StatusCode))
-
-	}
 
 	respBytes, errRead := ioutil.ReadAll(res.Body)
 	if errRead != nil {
@@ -150,21 +101,36 @@ func (b *Bridge) getRawResponse(endpoint string) ([]byte, error) {
 	return respBytes, nil
 }
 
-func (b *Bridge) getFromBridge(endpoint string, target interface{}) error {
+func (b *Bridge) getFromBridge(endpoint string) (*http.Response, error) {
 
 	uri := b.getBridgeAPIURI() + endpoint
 
 	req, err := http.NewRequest("GET", uri, nil)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	client := &http.Client{}
 	res, err := client.Do(req)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
+	// check http responses
+	if res.StatusCode != http.StatusOK {
+		return nil, errors.New("Hue responded with error" + res.Status + fmt.Sprint(res.StatusCode))
+
+	}
+
+	return res, nil
+}
+
+// getAndDecode performs a get request and unmarshals the result into target
+func (b *Bridge) getAndDecode(endpoint string, target interface{}) error {
+	res, errCom := b.getFromBridge(endpoint)
+	if errCom != nil {
+		return errCom
+	}
 	defer res.Body.Close()
 
 	if res.StatusCode != http.StatusOK {
@@ -172,11 +138,9 @@ func (b *Bridge) getFromBridge(endpoint string, target interface{}) error {
 	}
 
 	// Unmarshal data
-	if target != nil {
-		errDecode := json.NewDecoder(res.Body).Decode(target)
-		if errDecode != nil {
-			return errDecode
-		}
+	errDecode := json.NewDecoder(res.Body).Decode(target)
+	if errDecode != nil {
+		return errDecode
 	}
 
 	return nil
@@ -185,3 +149,25 @@ func (b *Bridge) getFromBridge(endpoint string, target interface{}) error {
 func (b *Bridge) getBridgeAPIURI() string {
 	return b.Config.BridgeAddrScheme + "://" + b.Config.BridgeAddr + "/api/" + b.Config.Username
 }
+
+// func decodeResponse(r *htpp.Response, target interface{}) {
+// 	defer r.Body.Close()
+
+// 	// TODO: remove
+// 	fmt.Println("response Status:", res.Status)
+// 	fmt.Println("response Headers:", res.Header)
+// 	body, _ := ioutil.ReadAll(res.Body)
+// 	fmt.Println("response Body:", string(body))
+
+// 	if res.StatusCode != http.StatusOK {
+// 		return errors.New("Hue responded with error" + res.Status + fmt.Sprint(res.StatusCode))
+// 	}
+
+// 	// Unmarshal data
+// 	if respData != nil {
+// 		errDecode := json.NewDecoder(res.Body).Decode(respData)
+// 		if errDecode != nil {
+// 			return nil, errDecode
+// 		}
+// 	}
+// }
