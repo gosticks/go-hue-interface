@@ -57,6 +57,8 @@ type Group struct {
 	Type      string      `json:"type"`
 	State     *GroupState `json:"state"`
 	Recycle   bool        `json:"recycle"`
+	ModelID   string      `json:"modelid,omitempty"`
+	UniqueID  string      `json:"uniqueid,omitempty"`
 	Class     string      `json:"class,omitempty"`
 	Action    LightState  `json:"action"`
 }
@@ -68,9 +70,17 @@ type GroupCreateResponse struct {
 	} `json:"success"`
 }
 
+// GroupState describes the state of a group
 type GroupState struct {
 	AllOn bool `json:"all_on"`
 	AnyOn bool `json:"any_on"`
+}
+
+// GroupAttributes that can be changed
+type GroupAttributes struct {
+	Name     string   `json:"name,omitempty"`
+	LightIDs []string `json:"lights,omitempty"`
+	Class    string   `json:"class"`
 }
 
 // -------------------------------------------------------------
@@ -124,17 +134,6 @@ func (b *Bridge) CreateGroup(name string, groupType GroupType, lights []string) 
 	return b.createGroup(groupConfig)
 }
 
-// GetAllGroups returns all the groups for a hue bridge
-func (b *Bridge) GetAllGroups() (map[string]*Group, error) {
-	result := make(map[string]*Group)
-	errCom := b.getAndDecode(groupsEndpoint, &result)
-	if errCom != nil {
-		return nil, errCom
-	}
-
-	return result, nil
-}
-
 // CreateRoom creates a new hue room.
 func (b *Bridge) CreateRoom(name string, class RoomClasses, lights []string) (string, error) {
 	groupConfig := &Group{
@@ -146,7 +145,45 @@ func (b *Bridge) CreateRoom(name string, class RoomClasses, lights []string) (st
 	return b.createGroup(groupConfig)
 }
 
-// func (b *Bridge) SetGroupAttributes(id string)
+// GetAllGroups returns all the groups for a hue bridge
+func (b *Bridge) GetAllGroups() (map[string]*Group, error) {
+	result := make(map[string]*Group)
+	errCom := b.getAndDecode(groupsEndpoint, &result)
+	if errCom != nil {
+		return nil, errCom
+	}
+
+	return result, nil
+}
+
+// GetGroupAttributes returns the state of a group by id
+func (b *Bridge) GetGroupAttributes(id string) (*Group, error) {
+	result := &Group{}
+	errCom := b.getAndDecode(groupsEndpoint+"/"+id, &result)
+	if errCom != nil {
+		return nil, errCom
+	}
+
+	return result, nil
+}
+
+// SetGroupAttributes updates a groups settings by adding devices or changing name or class
+func (b *Bridge) SetGroupAttributes(id string, attributes *GroupAttributes) (*BridgeResponse, error) {
+	res, errCom := b.putToBridge(groupsEndpoint+"/"+id, attributes)
+	if errCom != nil {
+		return nil, errCom
+	}
+
+	result := &BridgeResponse{}
+
+	// Unmarshal data
+	errDecode := json.NewDecoder(res.Body).Decode(result)
+	if errDecode != nil {
+		return nil, errDecode
+	}
+
+	return result, nil
+}
 
 // -------------------------------------------------------------
 // ~ Private methods
