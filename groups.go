@@ -83,6 +83,26 @@ type GroupAttributes struct {
 	Class    string   `json:"class"`
 }
 
+// GroupAction is struct for changing a state of a hue group
+// TODO: merge with light actions maybe?
+type GroupAction struct {
+	On             string    `json:"on,omitempty"`
+	Bri            uint8     `json:"bri,omitempty"`
+	Hue            uint16    `json:"hue,omitempty"`
+	Sat            uint8     `json:"sat,omitempty"`
+	Xy             []float32 `json:"xy,omitempty"`
+	Ct             uint16    `json:"ct,omitempty"`
+	Alert          string    `json:"alert,omitempty"`
+	Effect         string    `json:"effect,omitempty"`
+	TransitionTime uint16    `json:"transitiontime,omitempty"`
+	BriInc         int16     `json:"bri_inc,omitempty"`
+	SatInc         int16     `json:"sat_inc,omitempty"`
+	HueInc         int       `json:"hue_inc,omitempty"`
+	CtInc          int       `json:"ct_inc,omitempty"`
+	XyInc          int8      `json:"xy_inc,omitempty"`
+	Scene          string    `json:"scene,omitempty"`
+}
+
 // -------------------------------------------------------------
 // ~ String conversions
 // -------------------------------------------------------------
@@ -178,6 +198,24 @@ func (b *Bridge) SetGroupAttributes(id string, attributes *GroupAttributes) (*Br
 
 	// Unmarshal data
 	errDecode := json.NewDecoder(res.Body).Decode(result)
+	if errDecode != nil {
+		return nil, errDecode
+	}
+
+	return result, nil
+}
+
+// SetGroupState sets the state of a group by id
+func (b *Bridge) SetGroupState(id string, action *GroupAction) ([]*BridgeResponse, error) {
+	res, errCom := b.putToBridge(groupsEndpoint+"/"+id+"/action", action)
+	if errCom != nil {
+		return nil, errCom
+	}
+
+	result := []*BridgeResponse{}
+
+	// Unmarshal data
+	errDecode := json.NewDecoder(res.Body).Decode(&result)
 	if errDecode != nil {
 		return nil, errDecode
 	}
