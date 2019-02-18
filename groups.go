@@ -51,16 +51,26 @@ const (
 
 // Group hue type
 type Group struct {
-	Name      string      `json:"name"`
-	LightIDs  []string    `json:"lights"`
-	SensorIDs []string    `json:"sensors"`
-	Type      string      `json:"type"`
-	State     *GroupState `json:"state"`
-	Recycle   bool        `json:"recycle"`
-	ModelID   string      `json:"modelid,omitempty"`
-	UniqueID  string      `json:"uniqueid,omitempty"`
-	Class     string      `json:"class,omitempty"`
-	Action    LightState  `json:"action"`
+	Name      string         `json:"name"`
+	LightIDs  []string       `json:"lights"`
+	SensorIDs []string       `json:"sensors"`
+	Type      string         `json:"type"`
+	State     *GroupState    `json:"state"`
+	Recycle   bool           `json:"recycle"`
+	ModelID   string         `json:"modelid,omitempty"`
+	UniqueID  string         `json:"uniqueid,omitempty"`
+	Class     string         `json:"class,omitempty"`
+	Action    LightState     `json:"action"`
+	Presence  *GroupPresence `json:"presence,omitempty"`
+	// Lightlevel..
+}
+
+// GroupPresence only exists if sensors array contains a presence sensor of type “ZLLPresence”, “CLIPPresence” or “Geofence”. This object contains a state object which contains the aggregated state of the sensors
+type GroupPresence struct {
+	// State?
+	LastUpdated Time `json:"lastupdated"`
+	Presence    bool `json:"presence"`
+	PresenceAll bool `json:"presence_all"`
 }
 
 // GroupCreateResponse is returned after a create group request
