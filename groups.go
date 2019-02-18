@@ -51,18 +51,18 @@ const (
 
 // Group hue type
 type Group struct {
-	Name      string         `json:"name"`
-	LightIDs  []string       `json:"lights"`
-	SensorIDs []string       `json:"sensors"`
-	Type      string         `json:"type"`
-	State     *GroupState    `json:"state"`
-	Recycle   bool           `json:"recycle"`
-	ModelID   string         `json:"modelid,omitempty"`
-	UniqueID  string         `json:"uniqueid,omitempty"`
-	Class     string         `json:"class,omitempty"`
-	Action    LightState     `json:"action"`
-	Presence  *GroupPresence `json:"presence,omitempty"`
-	// Lightlevel..
+	Name       string           `json:"name"`
+	LightIDs   []string         `json:"lights"`
+	SensorIDs  []string         `json:"sensors"`
+	Type       string           `json:"type"`
+	State      *GroupState      `json:"state"`
+	Recycle    bool             `json:"recycle"`
+	ModelID    string           `json:"modelid,omitempty"`
+	UniqueID   string           `json:"uniqueid,omitempty"`
+	Class      string           `json:"class,omitempty"`
+	Action     LightState       `json:"action"`
+	Presence   *GroupPresence   `json:"presence,omitempty"`
+	LightLevel *GroupLightLevel `json:"lightlevel,omitempty"`
 }
 
 // GroupPresence only exists if sensors array contains a presence sensor of type “ZLLPresence”, “CLIPPresence” or “Geofence”. This object contains a state object which contains the aggregated state of the sensors
@@ -71,6 +71,19 @@ type GroupPresence struct {
 	LastUpdated Time `json:"lastupdated"`
 	Presence    bool `json:"presence"`
 	PresenceAll bool `json:"presence_all"`
+}
+
+// GroupLightLevel light level struct
+type GroupLightLevel struct {
+	// State?
+	LastUpdated Time `json:"lastupdated"`
+	Dark        bool `json:"dark"`
+	DarkAll     bool `json:"dark_all"`
+	Daylight    bool `json:"daylight"`
+	DaylightAny bool `json:"daylight_any"`
+	Level       int  `json:"lightlevel"`
+	LevelMin    int  `json:"lightlevel_min"`
+	LevelMax    int  `json:"lightlevel_max"`
 }
 
 // GroupCreateResponse is returned after a create group request
