@@ -64,8 +64,13 @@ func (b *Bridge) postToBridge(endpoint string, payload interface{}) (*http.Respo
 }
 
 func (b *Bridge) putToBridge(endpoint string, payload interface{}) (*http.Response, error) {
-	return b.sendToBridge(endpoint, http.MethodPost, payload)
+	return b.sendToBridge(endpoint, http.MethodPut, payload)
 }
+
+func (b *Bridge) deleteFromBridge(endpoint string, payload interface{}) (*http.Response, error) {
+	return b.sendToBridge(endpoint, http.MethodDelete, payload)
+}
+
 
 func (b *Bridge) sendToBridge(endpoint string, method string, payload interface{}) (*http.Response, error) {
 	data, errMarhshal := json.Marshal(payload)
