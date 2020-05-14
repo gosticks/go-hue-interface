@@ -21,9 +21,12 @@ func (bs *BridgeState) String() string {
 }
 
 // GetState returns the current hue state
-func (b *Bridge) GetState() (*BridgeState, error) {
-	state := &BridgeState{}
+func (b *Bridge) GetState() (state *BridgeState, err error) {
+	state = &BridgeState{}
 	res, err := b.getFromBridge("")
+	if err != nil {
+		return
+	}
 
 	// Unmarshal data
 	errDecode := json.NewDecoder(res.Body).Decode(state)

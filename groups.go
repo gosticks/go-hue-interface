@@ -266,7 +266,7 @@ func (b *Bridge) createGroup(group *Group) (string, error) {
 
 	if len(result) == 1 {
 		return result[0].Success.ID, nil
-	} else {
-		return "", fmt.Errorf("could not create group, bridge did not return new group id")
 	}
+	return "", fmt.Errorf("could not create group, bridge did not return new group id")
+
 }

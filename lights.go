@@ -111,12 +111,13 @@ func (b *Bridge) SetLightState(id string, state *LightState) (result *BridgeResp
 
 // GetLights returns all the hue lights
 func (b *Bridge) GetLights() (result map[string]*Light, err error) {
+	result = make(map[string]*Light)
 	res, errCom := b.getFromBridge("/lights")
 	if errCom != nil {
 		return nil, errCom
 	}
 	// Unmarshal data
-	errDecode := json.NewDecoder(res.Body).Decode(result)
+	errDecode := json.NewDecoder(res.Body).Decode(&result)
 	if errDecode != nil {
 		return nil, errDecode
 	}

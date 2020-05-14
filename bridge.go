@@ -71,7 +71,6 @@ func (b *Bridge) deleteFromBridge(endpoint string, payload interface{}) (*http.R
 	return b.sendToBridge(endpoint, http.MethodDelete, payload)
 }
 
-
 func (b *Bridge) sendToBridge(endpoint string, method string, payload interface{}) (*http.Response, error) {
 	data, errMarhshal := json.Marshal(payload)
 	if errMarhshal != nil {
@@ -109,7 +108,6 @@ func (b *Bridge) getRawResponse(endpoint string) ([]byte, error) {
 func (b *Bridge) getFromBridge(endpoint string) (*http.Response, error) {
 
 	uri := b.getBridgeAPIURI() + endpoint
-
 	req, err := http.NewRequest("GET", uri, nil)
 	if err != nil {
 		return nil, err
@@ -124,7 +122,6 @@ func (b *Bridge) getFromBridge(endpoint string) (*http.Response, error) {
 	// check http responses
 	if res.StatusCode != http.StatusOK {
 		return nil, errors.New("Hue responded with error" + res.Status + fmt.Sprint(res.StatusCode))
-
 	}
 
 	return res, nil
